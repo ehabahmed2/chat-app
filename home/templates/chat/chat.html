@@ -1,0 +1,54 @@
+<script src="https://unpkg.com/htmx.org@1.9.6"></script>
+
+<main class="main-content">
+    <div class="sidebar">
+      <button class="btn btn-primary toggle-chat-list"><i class="fas fa-times"></i></button>
+      <div class="search-container">
+        <input type="text" class="form-control" placeholder="Search for a chat" />
+        <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+      </div>
+      <div class="chat-list">
+        <div class="chat-item active">
+          <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar">
+          <div class="chat-info">
+            <h4>{{chat_group}}</h4>
+            <p>Latest message is here</p>
+          </div>
+        </div>
+        <!-- More chat items -->
+      </div>
+    </div>
+    <div class="chat-container">
+      <div class="chat-header">
+        <button class="btn btn-primary show-chat-list hidden"><i class="fas fa-bars"></i></button>
+        <h3><i class="fas fa-user-circle"></i> {{chat_group}}</h3>
+        <div class="chat-header-actions">
+          <button class="btn btn-primary"><i class="fas fa-user-plus"></i> Invite</button>
+          <button class="btn btn-danger"><i class="fas fa-sign-out-alt"></i> Leave</button>
+        </div>
+      </div>
+      <div class="chat-messages" id='chat_messages'>
+        {% for message in chat_messages %}
+            {% include "chat/chat_message.html" %}
+        {% endfor %}
+    </div>
+    
+    <form 
+    hx-post="{% url 'home' %}" 
+    hx-target="#chat_messages" 
+    hx-swap="beforeend"
+    hx-on="htmx:afterRequest:this.reset()"
+
+    method="POST"
+    >
+    {% csrf_token %}
+    <div class="chat-input">
+        {{ form.body }}
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i> Send
+        </button>
+    </div>
+  </form>
+        
+    </div>
+  </main>

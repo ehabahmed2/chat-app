@@ -1,0 +1,17 @@
+
+{% if message.author != user %}
+<div class="message received">
+    <img src="https://via.placeholder.com/40" alt="User Avatar" class="avatar">
+    <div class="message-content">
+        <p>{{ message.body }}</p>
+        <span class="timestamp">{{ message.created|date:"H:i" }} by <span>{{ message.author }}</span></span>
+    </div>
+</div>
+{% else %}
+<div class="message sent">
+    <div class="message-content">
+        <p>{{ message.body }}</p>
+        <span class="timestamp">{{ message.created|date:"H:i" }} by <span>{{ message.author }}</span></span>
+    </div>
+</div>
+{% endif %}

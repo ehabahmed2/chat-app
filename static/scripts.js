@@ -13,47 +13,55 @@ document
     document.querySelector(".show-chat-list").style.display = "none";
   });
 
-// Add event listeners for sending messages, joining/leaving chats, and other functionality
-document
-  .querySelector(".chat-input input")
-  .addEventListener("keyup", function (event) {
+// Handle message input
+const chatInput = document.querySelector(".chat-input input");
+const chatForm = document.querySelector(".chat-input form");
+
+if (chatInput && chatForm) {
+  // Debugging: Log target element
+  console.log("Target element:", document.querySelector("#chat_messages"));
+
+  // Prevent default form submission on Enter key
+  chatInput.addEventListener("keyup", function (event) {
     if (event.key === "Enter") {
-      sendMessage();
+      event.preventDefault();
+      // Use HTMX to submit the form
+      htmx.trigger(chatForm, "submit");
     }
   });
 
-document
-  .querySelector(".chat-input button")
-  .addEventListener("click", sendMessage);
+  // Error handling for HTMX
+  chatForm.addEventListener("htmx:targetError", function (event) {
+    console.error("HTMX Target Error:", event);
+    alert("Could not find the target element to update.");
+  });
 
-function sendMessage() {
-  const messageInput = document.querySelector(".chat-input input");
-  const message = messageInput.value.trim();
-  if (message) {
-    // Add the message to the chat
-    addChatMessage(message);
-    messageInput.value = "";
-    // Send the message to the server
-    // ...
+  // Optional: Clear input after successful submission
+  chatForm.addEventListener("htmx:afterRequest", function () {
+    chatInput.value = ""; // Clear input after sending
+  });
+}
+
+// Global HTMX error handling
+document.body.addEventListener("htmx:error", function (event) {
+  console.error("HTMX Error:", event);
+  alert("An error occurred while processing your request.");
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Function to scroll to the bottom of the chat messages
+  function scrollToBottom() {
+    const chatMessages = document.querySelector("#chat_messages");
+    if (chatMessages) {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
   }
-}
 
-function addChatMessage(message) {
-  const chatMessages = document.querySelector(".chat-messages");
-  const messageElement = document.createElement("div");
-  messageElement.classList.add("message", "sent");
-  messageElement.innerHTML = `
-      <div class="message-content">
-        <p>${message}</p>
-        <span class="timestamp">${new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        })}</span>
-      </div>
-    `;
-  chatMessages.appendChild(messageElement);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+  // Scroll to bottom on page load
+  scrollToBottom();
 
-// Add functionality for searching and joining/leaving chats
-// ...
+  // Listen for new messages and scroll to bottom
+  document.body.addEventListener("htmx:afterRequest", function (event) {
+    scrollToBottom();
+  });
+});
